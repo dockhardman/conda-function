@@ -1,6 +1,9 @@
-from conda_function.config import default_settings
-from typing import Text
 from pathlib import Path
+from typing import List, Text
+
+from conda_function.config import default_settings
+from conda_function.helper import subprocess_run
+from conda_function.schemas import CondaEnv
 
 
 class CondaAPI:
@@ -16,6 +19,22 @@ class CondaAPI:
             .joinpath(env_name)
             .is_dir()
         )
+
+    def list_envs(self) -> List[CondaEnv]:
+        output = subprocess_run(["conda", "env", "list"])
+        lines = output.splitlines()
+        conda_envs: List[CondaEnv] = []
+        for line in lines:
+            if line and not line.startswith("#"):
+                parts = line.split()
+                conda_envs.append(
+                    CondaEnv(
+                        name=parts[0],
+                        active=len(parts) == 3,
+                        conda_prefix=parts[-1],
+                    )
+                )
+        return conda_envs
 
 
 default_conda_api = CondaAPI()
