@@ -36,5 +36,12 @@ class CondaAPI:
                 )
         return conda_envs
 
+    def run_in_conda_env(self, env_name: Text, command: List[Text]) -> None:
+        if not self.is_conda_env_exist(env_name):
+            raise Exception(f"Conda environment {env_name} does not exist")
+        subprocess_run(
+            ["conda", "run", "--no-capture-output", "-n", env_name] + command
+        )
+
 
 default_conda_api = CondaAPI()
