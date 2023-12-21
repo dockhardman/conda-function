@@ -1,8 +1,9 @@
+import tempfile
 from pathlib import Path
-from typing import List, Text
+from typing import List, Optional, Text, Union
 
 from conda_function.config import default_settings
-from conda_function.helper import subprocess_run
+from conda_function.helper import dummy_ctx, subprocess_run
 from conda_function.schemas import CondaEnv
 
 
@@ -36,12 +37,20 @@ class CondaAPI:
                 )
         return conda_envs
 
-    def run_in_conda_env(self, env_name: Text, command: List[Text]) -> None:
+    def run_in_conda_env(
+        self,
+        env_name: Text,
+        command: List[Text],
+        cwd: Optional[Union[Text, Path]] = None,
+    ) -> None:
         if not self.is_conda_env_exist(env_name):
             raise Exception(f"Conda environment {env_name} does not exist")
-        subprocess_run(
-            ["conda", "run", "--no-capture-output", "-n", env_name] + command
-        )
+        with dummy_ctx(cwd) if cwd else tempfile.TemporaryDirectory() as tmp_dir:
+            out = subprocess_run(
+                ["conda", "run", "--no-capture-output", "-n", env_name] + command,
+                cwd=tmp_dir,
+            )
+            return out
 
 
 default_conda_api = CondaAPI()
