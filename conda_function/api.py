@@ -52,5 +52,21 @@ class CondaAPI:
             )
             return out
 
+    def run_script_in_conda_env(
+        self,
+        env_name: Text,
+        script_path: Text,
+        cwd: Optional[Union[Text, Path]] = None,
+    ) -> None:
+        if not self.is_conda_env_exist(env_name):
+            raise Exception(f"Conda environment {env_name} does not exist")
+        with dummy_ctx(cwd) if cwd else tempfile.TemporaryDirectory() as tmp_dir:
+            out = self.run_in_conda_env(
+                env_name=env_name,
+                command=["python", "-u", script_path],
+                cwd=tmp_dir,
+            )
+            return out
+
 
 default_conda_api = CondaAPI()
