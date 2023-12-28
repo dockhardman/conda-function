@@ -6,12 +6,15 @@ from typing import Generator, List, Optional, Text, TypeVar, Union
 
 from packaging.requirements import Requirement
 
+from conda_function.config import console
+
 T = TypeVar("T")
 
 
 def subprocess_run(args: List[Text], cwd: Optional[Union[Text, Path]] = None):
     try:
-        print("Executing: ", " ".join(args))
+        args_str = " ".join(args)
+        console.print(f"Executing: [italic underline]{args_str}[/italic underline]")
         process = subprocess.Popen(
             args,
             stdout=subprocess.PIPE,

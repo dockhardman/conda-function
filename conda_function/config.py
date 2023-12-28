@@ -1,6 +1,10 @@
 import os
 from typing import Text
 
+from rich.console import Console
+
+console = Console()
+
 
 class Settings:
     CONDA_DEFAULT_ENV: Text
